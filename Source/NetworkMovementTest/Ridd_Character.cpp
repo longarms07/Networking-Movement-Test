@@ -36,6 +36,6 @@ void ARidd_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 URidd_CharacterMovementComponent* ARidd_Character::GetMyMovementComponent() const
 {
-	return reinterpret_cast<URidd_CharacterMovementComponent*>(GetCharacterMovement());
+	return static_cast<URidd_CharacterMovementComponent*>(GetCharacterMovement());
 }
 

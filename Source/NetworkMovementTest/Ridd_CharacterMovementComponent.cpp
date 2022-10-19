@@ -22,13 +22,13 @@ FNetworkPredictionData_Client* URidd_CharacterMovementComponent::GetPredictionDa
 	return ClientPredictionData;
 }
 
-bool URidd_CharacterMovementComponent::SetTarget(AActor* targetActor) {
+bool URidd_CharacterMovementComponent::SetZiplineTarget(AActor* targetActor, FVector cameraDirection) {
 	// If we already have a target set, return false
 	if (!targetSet) {
 		target = targetActor;
 		targetSet = true;
 		// Set the direction to the target
-		ziplineDirection = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), target->GetActorLocation());
+		ziplineDirection = cameraDirection;
 		ZiplineActive = true;
 		return true;
 	}
@@ -87,6 +87,10 @@ void URidd_CharacterMovementComponent::OnActorHit(AActor* SelfActor, AActor* Oth
 			EndZipline();
 		}
 	}
+}
+
+bool URidd_CharacterMovementComponent:: CurrentlyZiplining() {
+	return ZiplineActive;
 }
 
 
