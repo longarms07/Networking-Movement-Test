@@ -211,7 +211,7 @@ void URidd_CharacterMovementComponent::PhysZipLining(float deltaTime, int32 Iter
 
 	// Set the owning player's new velocity
 	// TODO: Need to figure these physics out
-	FVector newVelocity = FVector();
+	FVector newVelocity = ziplineDirection;
 	newVelocity.X *= ZipSpeed;
 	newVelocity.Y *= ZipSpeed;
 	newVelocity.Z *= ZipSpeed;

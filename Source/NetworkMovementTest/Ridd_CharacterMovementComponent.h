@@ -34,7 +34,7 @@ private:
 	
 	// Speed while Ziplining
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ridd Character Movement|Ziplining", Meta = (AllowPrivateAccess = "true"))
-	float ZipSpeed = 400.0f;
+	float ZipSpeed = 200.0f;
 
 	// Acceleration while ziplining
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ridd Character Movement|Ziplining", Meta = (AllowPrivateAccess = "true"))
