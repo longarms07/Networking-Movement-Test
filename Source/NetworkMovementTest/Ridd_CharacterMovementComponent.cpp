@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
 #include "Math/Vector.h"
+#include "Kismet/KismetMathLibrary.h"
 
 FNetworkPredictionData_Client* URidd_CharacterMovementComponent::GetPredictionData_Client() const
 {
@@ -26,6 +27,8 @@ bool URidd_CharacterMovementComponent::SetTarget(AActor* targetActor) {
 	if (!targetSet) {
 		target = targetActor;
 		targetSet = true;
+		// Set the direction to the target
+		ziplineDirection = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), target->GetActorLocation());
 		ZiplineActive = true;
 		return true;
 	}
@@ -205,9 +208,9 @@ void URidd_CharacterMovementComponent::PhysZipLining(float deltaTime, int32 Iter
 	// Set the owning player's new velocity
 	// TODO: Need to figure these physics out
 	FVector newVelocity = FVector();
-	newVelocity.X *= 0.0f;
-	newVelocity.Y *= 0.0f;
-	newVelocity.Z *= 0.0f;
+	newVelocity.X *= ZipSpeed;
+	newVelocity.Y *= ZipSpeed;
+	newVelocity.Z *= ZipSpeed;
 	Velocity = newVelocity;
 
 	const FVector Adjusted = Velocity * deltaTime;

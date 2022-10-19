@@ -12,11 +12,16 @@
 UCLASS()
 class NETWORKMOVEMENTTEST_API URidd_CharacterMovementComponent : public UCharacterMovementComponent
 {
-	GENERATED_BODY()
-	
+	GENERATED_BODY();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MoveActor")
+	class AActor* target;
+
+
 private:
-	AActor* target;
 	bool targetSet = false;
+	FVector ziplineDirection;
 
 #pragma region Defaults
 	// The ground speed when running
