@@ -23,41 +23,37 @@ FNetworkPredictionData_Client* URidd_CharacterMovementComponent::GetPredictionDa
 	return ClientPredictionData;
 }
 
-
-void SetZiplineTarget_Implementation(FVector targetLoc, FVector cameraDirection)
-{
-	URidd_CharacterMovementComponent::execSetZiplineTarget(targetLoc, cameraDirection);
-}
-
-void URidd_CharacterMovementComponent::BeginZipline_Implementation() {
-	execBeginZipline();
-}
-
-void URidd_CharacterMovementComponent::EndZipline_Implementation() {
-	execEndZipline();
-}
-
-void URidd_CharacterMovementComponent::execSetZiplineTarget(FVector targetLoc, FVector cameraDirection) {
+bool URidd_CharacterMovementComponent::SetZiplineTarget(FVector targetLoc, FVector cameraDirection) {
 	if (!ZiplineActive) 
 	{
 		targetLocation = targetLoc;
 		// Set the direction to the target
 		ziplineDirection = cameraDirection;
+		return true;
 	}
+	return false;
 }
 
-void URidd_CharacterMovementComponent::execBeginZipline()
+bool URidd_CharacterMovementComponent::BeginZipline()
 {
+
+	bool test1 = (!ZiplineActive);
+	bool test2 = (ZiplineActive == 0);
+
 	if (!ZiplineActive) 
 	{
+		if (test1 || test2) { ZiplineActive = true; }
 		// Set the movement mode to Ziplining
-		ZiplineActive = true;
 		SetMovementMode(EMovementMode::MOVE_Custom, ECustomMovementMode::CMOVE_ZipLining);
+		ZiplineActive = true;
+		
+		return true;
 	}
 
+	return false;
 }
 
-void URidd_CharacterMovementComponent::execEndZipline()
+void URidd_CharacterMovementComponent::EndZipline()
 {
 	// check that we're ziplining. Don't change the movement mode if we aren't
 	if (ZiplineActive) {
@@ -70,7 +66,7 @@ void URidd_CharacterMovementComponent::execEndZipline()
 
 bool URidd_CharacterMovementComponent::NearTarget() {
 	// We'll want to use server position, so verify we're on the server and ziplining
-	if (GetPawnOwner()->IsLocallyControlled() == true && ZiplineActive)
+	if (GetPawnOwner()->IsLocallyControlled() == true)
 	{
 		FVector myPos = GetActorLocation();
 		// Check that we are close enough to the actor based on the size of the distance between them
@@ -124,6 +120,9 @@ void URidd_CharacterMovementComponent::OnComponentDestroyed(bool bDestroyingHier
 
 void URidd_CharacterMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
+
+	MovementMode;
+
 	// Peform local only checks
 	if (GetPawnOwner()->IsLocallyControlled())
 	{
@@ -151,7 +150,15 @@ void URidd_CharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 	*/
 
 	// Read the values from the compressed flags
-	ZiplineActive = (Flags & FSavedMove_Character::FLAG_Custom_0) != 0;
+	uint8 flags2 = Flags;
+	if (flags2) { flags2 = !flags2; }
+
+	uint8 idkevenanymore = (Flags & FSavedMove_Character::FLAG_Custom_0);
+	uint8 aaaaa = (Flags & FSavedMove_Character::FLAG_Custom_0) != 0;
+	if (idkevenanymore) { aaaaa = !aaaaa; }
+
+	//ZiplineActive = (Flags & FSavedMove_Character::FLAG_Custom_0) != 0;
+	//ZiplineActive = true;
 }
 
 void URidd_CharacterMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
@@ -212,23 +219,24 @@ void URidd_CharacterMovementComponent::PhysZipLining(float deltaTime, int32 Iter
 	// replicating the final position, velocity, etc.. to the other simulated proxies.
 
 	// Make sure we're in zipline mode
-	if (ZiplineActive == false)
+	/*if (!ZiplineActive)
 	{
 		EndZipline();
 		return;
-	}
+	}*/
 
-	// Set the owning player's new velocity
-	// TODO: Need to figure these physics out
-	FVector newVelocity = ziplineDirection;
-	newVelocity.X *= ZipSpeed;
-	newVelocity.Y *= ZipSpeed;
-	newVelocity.Z *= ZipSpeed;
-	Velocity = newVelocity;
+		// Set the owning player's new velocity
+		// TODO: Need to figure these physics out
+		FVector newVelocity = ziplineDirection;
+		newVelocity.X *= ZipSpeed;
+		newVelocity.Y *= ZipSpeed;
+		newVelocity.Z *= ZipSpeed;
+		Velocity = newVelocity;
 
-	const FVector Adjusted = Velocity * deltaTime;
-	FHitResult Hit(1.f);
-	SafeMoveUpdatedComponent(Adjusted, UpdatedComponent->GetComponentQuat(), true, Hit);
+		const FVector Adjusted = Velocity * deltaTime;
+		FHitResult Hit(1.f);
+		SafeMoveUpdatedComponent(Adjusted, UpdatedComponent->GetComponentQuat(), true, Hit);
+	
 }
 
 float URidd_CharacterMovementComponent::GetMaxSpeed() const
@@ -259,6 +267,10 @@ float URidd_CharacterMovementComponent::GetMaxAcceleration() const
 	if (IsMovingOnGround())
 	{
 		return RunAcceleration;
+	}
+	else if (ZiplineActive)
+	{
+		return ZipAcceleration;
 	}
 
 	return Super::GetMaxAcceleration();
@@ -324,7 +336,7 @@ void FSavedMove_Ridd::PrepMoveFor(class ACharacter* Character)
 	URidd_CharacterMovementComponent* charMov = Cast<URidd_CharacterMovementComponent>(Character->GetCharacterMovement());
 	if (charMov)
 	{
-		// Copt values out of the saved move
+		// Copy values out of the saved move
 		charMov->ZiplineActive = SavedZiplineActive;
 	}
 }

@@ -58,7 +58,7 @@ public:
 	bool BeginZipline();
 
 	// End Zipping
-	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Custom Character Movement")
+	UFUNCTION(BlueprintCallable, Category = "Custom Character Movement")
 	void EndZipline();
 
 	// Function to check if we're close enough to the target to stop
