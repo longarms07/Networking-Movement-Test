@@ -14,13 +14,9 @@ class NETWORKMOVEMENTTEST_API URidd_CharacterMovementComponent : public UCharact
 {
 	GENERATED_BODY()
 
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MoveActor")
-	class AActor* target;
-
 
 private:
-	bool targetSet = false;
+	FVector targetLocation;
 	FVector ziplineDirection;
 
 #pragma region Defaults
@@ -46,6 +42,8 @@ private:
 
 
 
+
+
 #pragma endregion Defaults
 
 
@@ -53,14 +51,14 @@ private:
 public:
 	// Set Target
 	UFUNCTION(BlueprintCallable, Category = "Custom Character Movement")
-	bool SetZiplineTarget(AActor* targetActor, FVector cameraDirection);
+	bool SetZiplineTarget(FVector targetLoc, FVector cameraDirection);
 
 	// Begin Zipping
 	UFUNCTION(BlueprintCallable, Category = "Custom Character Movement")
 	bool BeginZipline();
 
 	// End Zipping
-	UFUNCTION(BlueprintCallable, Category = "Custom Character Movement")
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Custom Character Movement")
 	void EndZipline();
 
 	// Function to check if we're close enough to the target to stop

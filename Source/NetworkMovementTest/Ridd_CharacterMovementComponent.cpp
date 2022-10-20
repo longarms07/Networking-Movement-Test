@@ -19,43 +19,51 @@ FNetworkPredictionData_Client* URidd_CharacterMovementComponent::GetPredictionDa
 		MutableThis->ClientPredictionData = new FNetworkPredictionData_Client_Ridd(*this);
 	}
 
+
 	return ClientPredictionData;
 }
 
-bool URidd_CharacterMovementComponent::SetZiplineTarget(AActor* targetActor, FVector cameraDirection) {
-	// If we already have a target set, return false
-	if (!targetSet) {
-		target = targetActor;
-		targetSet = true;
+
+void SetZiplineTarget_Implementation(FVector targetLoc, FVector cameraDirection)
+{
+	URidd_CharacterMovementComponent::execSetZiplineTarget(targetLoc, cameraDirection);
+}
+
+void URidd_CharacterMovementComponent::BeginZipline_Implementation() {
+	execBeginZipline();
+}
+
+void URidd_CharacterMovementComponent::EndZipline_Implementation() {
+	execEndZipline();
+}
+
+void URidd_CharacterMovementComponent::execSetZiplineTarget(FVector targetLoc, FVector cameraDirection) {
+	if (!ZiplineActive) 
+	{
+		targetLocation = targetLoc;
 		// Set the direction to the target
 		ziplineDirection = cameraDirection;
-		ZiplineActive = true;
-		return true;
 	}
-	return false;
 }
 
-bool URidd_CharacterMovementComponent::BeginZipline()
+void URidd_CharacterMovementComponent::execBeginZipline()
 {
-	// Check to make sure we have a zipline target
-	if (targetSet)
+	if (!ZiplineActive) 
 	{
 		// Set the movement mode to Ziplining
+		ZiplineActive = true;
 		SetMovementMode(EMovementMode::MOVE_Custom, ECustomMovementMode::CMOVE_ZipLining);
-		return true;
 	}
 
-	return false;
 }
 
-void URidd_CharacterMovementComponent::EndZipline()
+void URidd_CharacterMovementComponent::execEndZipline()
 {
 	// check that we're ziplining. Don't change the movement mode if we aren't
 	if (ZiplineActive) {
 		// Set the mode to falling
 		SetMovementMode(EMovementMode::MOVE_Falling);
 		// TODO: Properly dispose of target
-		targetSet = false;
 		ZiplineActive = false;
 	}
 }
@@ -64,10 +72,9 @@ bool URidd_CharacterMovementComponent::NearTarget() {
 	// We'll want to use server position, so verify we're on the server and ziplining
 	if (GetPawnOwner()->IsLocallyControlled() == true && ZiplineActive)
 	{
-		FVector targetPos = target->GetActorLocation();
 		FVector myPos = GetActorLocation();
 		// Check that we are close enough to the actor based on the size of the distance between them
-		FVector betweenPositions = myPos - targetPos;
+		FVector betweenPositions = myPos - targetLocation;
 		float distance = betweenPositions.Size();
 		if (distance <= TargetDistance) {
 			return true;
@@ -81,11 +88,7 @@ void URidd_CharacterMovementComponent::OnActorHit(AActor* SelfActor, AActor* Oth
 	// If we collide with the target, stop ziplining
 	// First, make sure we are ziplining
 	if (ZiplineActive) {
-
-		// Make sure what we hit was the target
-		if (OtherActor == target) {
 			EndZipline();
-		}
 	}
 }
 
@@ -125,6 +128,12 @@ void URidd_CharacterMovementComponent::TickComponent(float DeltaTime, enum ELeve
 	if (GetPawnOwner()->IsLocallyControlled())
 	{
 
+	}
+	else
+	{
+		if (NearTarget()) {
+			EndZipline();
+		}
 	}
 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
