@@ -84,7 +84,7 @@ void URidd_CharacterMovementComponent::OnActorHit(AActor* SelfActor, AActor* Oth
 	// If we collide with the target, stop ziplining
 	// First, make sure we are ziplining
 	if (ZiplineActive) {
-			EndZipline();
+		EndZipline();
 	}
 }
 
@@ -138,60 +138,6 @@ void URidd_CharacterMovementComponent::TickComponent(float DeltaTime, enum ELeve
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void URidd_CharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
-{
-	Super::UpdateFromCompressedFlags(Flags);
-
-	/*  There are 4 custom move flags for us to use. Below is what each is currently being used for:
-		FLAG_Custom_0		= 0x10, // Ziplining
-		FLAG_Custom_1		= 0x20, // Unused
-		FLAG_Custom_2		= 0x40, // Unused
-		FLAG_Custom_3		= 0x80, // Unused
-	*/
-
-	// Read the values from the compressed flags
-	uint8 flags2 = Flags;
-	if (flags2) { flags2 = !flags2; }
-
-	uint8 idkevenanymore = (Flags & FSavedMove_Character::FLAG_Custom_0);
-	uint8 aaaaa = (Flags & FSavedMove_Character::FLAG_Custom_0) != 0;
-	if (idkevenanymore) { aaaaa = !aaaaa; }
-
-	//ZiplineActive = (Flags & FSavedMove_Character::FLAG_Custom_0) != 0;
-	//ZiplineActive = true;
-}
-
-void URidd_CharacterMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
-{
-	if (MovementMode == MOVE_Custom)
-	{
-		switch (CustomMovementMode)
-		{
-		// Start ziplining
-		case ECustomMovementMode::CMOVE_ZipLining:
-		{
-			// Disable normal movement
-		}
-		break;
-		}
-	}
-
-	if (PreviousMovementMode == MOVE_Custom)
-	{
-		switch (PreviousCustomMode)
-		{
-			// Stop ziplining
-		case ECustomMovementMode::CMOVE_ZipLining:
-		{
-			// Enable normal movement
-		}
-		break;
-		}
-	}
-
-	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
-}
-
 void URidd_CharacterMovementComponent::PhysCustom(float deltaTime, int32 Iterations)
 {
 	// Phys* functions should only run for characters with ROLE_Authority or ROLE_AutonomousProxy. However, Unreal calls PhysCustom in
@@ -219,14 +165,13 @@ void URidd_CharacterMovementComponent::PhysZipLining(float deltaTime, int32 Iter
 	// replicating the final position, velocity, etc.. to the other simulated proxies.
 
 	// Make sure we're in zipline mode
-	/*if (!ZiplineActive)
+	if (!ZiplineActive)
 	{
 		EndZipline();
 		return;
-	}*/
+	}
 
 		// Set the owning player's new velocity
-		// TODO: Need to figure these physics out
 		FVector newVelocity = ziplineDirection;
 		newVelocity.X *= ZipSpeed;
 		newVelocity.Y *= ZipSpeed;

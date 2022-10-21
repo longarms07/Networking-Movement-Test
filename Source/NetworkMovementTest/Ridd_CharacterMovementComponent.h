@@ -30,15 +30,15 @@ private:
 	
 	// Speed while Ziplining
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ridd Character Movement|Ziplining", Meta = (AllowPrivateAccess = "true"))
-	float ZipSpeed = 200.0f;
+	float ZipSpeed = 400.0f;
 
 	// Acceleration while ziplining
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ridd Character Movement|Ziplining", Meta = (AllowPrivateAccess = "true"))
-	float ZipAcceleration = 2500.0f;
+	float ZipAcceleration = 4000.0f;
 
 	// Distance from target that we consider "reaching" it
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ridd Character Movement", Meta = (AllowPrivateAccess = "true"))
-	float TargetDistance = 20.0f;
+	float TargetDistance = 100.0f;
 
 
 
@@ -82,8 +82,6 @@ protected:
 	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
 public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
-	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
 	void PhysZipLining(float deltaTime, int32 Iterations);
 	virtual float GetMaxSpeed() const override;
